@@ -1,4 +1,4 @@
-QT       += core gui network
+QT       += core gui network serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -9,6 +9,8 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    e_stakever0.cpp \
+    e_stakever0worker.cpp \
     hcballheadcamera.cpp \
     hcballheadcameraworker.cpp \
     hccolumnspeaker.cpp \
@@ -21,6 +23,8 @@ SOURCES += \
 
 HEADERS += \
     NovaHeader.h \
+    e_stakever0.h \
+    e_stakever0worker.h \
     hcballheadcamera.h \
     hcballheadcameraworker.h \
     hccolumnspeaker.h \

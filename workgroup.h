@@ -23,6 +23,7 @@ private:
     void initCamera();
     void initSpeaker();
     void initNova();
+    void initE_StakeVer0();
     void initTimer();
 
 public:

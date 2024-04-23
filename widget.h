@@ -7,6 +7,7 @@
 #include <QTimer>
 
 class WorkGroup;
+class E_StakeVer0;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -23,6 +24,7 @@ public:
 
 private:
     void init();
+    void initE_StakeVer0();
     void initGroups();
     void initTimerSec();
     void clsOverTimeIllegalPics();  //  删除超过保存时间的违法图片
@@ -46,6 +48,11 @@ private:
     QString m_ip2;
     QString m_ip3;
     QTimer* m_timerSec;             // 秒钟定时器
+    E_StakeVer0* m_E_StakeVer0 = nullptr;               // 简易安全桩
+    QString m_E_StakePort;          // 建议安全桩串口名
+    int m_GroupCount;               // 组数量
+    int m_E_StakeId1;               // 雾灯id1
+    int m_E_StakeId2;               // 雾灯id2
 
 private:
     // 最小化到系统托盘

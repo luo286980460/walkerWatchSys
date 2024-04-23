@@ -71,7 +71,7 @@ void WorkGroup::initCfg()
     emit showMsg(QString("分组号[%1]\n相机IP1[%2]\t回调下标1[%3]\n相机IP2[%4]\t回调下标2[%5]\n\
 音柱IP[%6]\t音柱播放次数[%7]\t音柱播放内容[%8]\t音柱播放音量[%9]\n\
 屏幕IP[%10]\t屏幕恢复默认节目间隔[%11]\t播放模式[%12]\n\
-大华音柱ID[%13]\t音柱类型[%14]")
+大华音柱ID[%13] \t音柱类型[%14]")
                              .arg(m_groupId).arg(m_HCCameraIp1).arg(m_HCCameraIndex1).arg(m_HCCameraIp2).arg(m_HCCameraIndex2)
                              .arg(m_HCSpeakerIp).arg(m_HCSpeakerTimes).arg(m_HCSpeakerContent).arg(m_HCSpeakerVolume)
                              .arg(m_NovaControllerIp).arg(m_Back2DefaultProgram).arg(m_HCSpeakerPlayMode)
@@ -80,7 +80,7 @@ void WorkGroup::initCfg()
     if(m_HCCameraIp1 == "-1" || m_HCCameraIp2 == "-1" || m_HCSpeakerIp == "-1" || m_NovaControllerIp == "-1"
         || m_HCCameraIndex1 == -1 || m_HCCameraIndex2 == -1 || m_Back2DefaultProgram == -1
         || m_HCSpeakerContent == "-1" || m_HCSpeakerTimes == -1 || m_HCSpeakerVolume ==-1
-        || m_HCSpeakerPlayMode == "-1" || m_SaveDays == -1 || m_DHSpeakerId == -1 || m_SpeakerType == -1){
+        || m_HCSpeakerPlayMode == "-1" || m_SaveDays == -1 || m_DHSpeakerId == -1){
         emit showMsg("************ cfg.ini 配置文件数据有误，请检查配置并重启 ************");
     }
 

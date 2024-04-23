@@ -1,16 +1,21 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include "workgroup.h"
+#include "e_stakever0.h"
 
 #include <QMenu>
 #include <QTime>
+#include <QFileInfo>
+#include <QSettings>
+
+#define ESTAKE_INI "/EStake.ini"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle("行人过节危险预警提示系统_2024.04.16");
+    setWindowTitle("行人过节危险预警提示系统_2024.04.23");
     setFixedSize(size());
 
     init();
@@ -24,8 +29,45 @@ Widget::~Widget()
 void Widget::init()
 {
     initSystemTray();   // 初始化系统托盘
+    initE_StakeVer0();
     initGroups();
     initTimerSec();
+}
+
+void Widget::initE_StakeVer0()
+{
+    QString iniPath = QCoreApplication::applicationDirPath() + ESTAKE_INI;
+    if(!QFileInfo::exists(iniPath)){
+        emit showMsg("****** cfg.ini 配置文件丢失 ******");
+        return;
+    }
+    QSettings settings(iniPath, QSettings::IniFormat);
+    settings.setIniCodec("UTF-8");
+
+    m_E_StakePort =settings.value(QString("EStake/Port"), -1).toString();
+    m_GroupCount = settings.value(QString("EStake/GroupCount"), -1).toInt();
+
+    if(m_E_StakePort == -1 || m_GroupCount == -1){
+        showMsg("************ EStake.ini 配置文件数据有误，请检查配置并重启 ************");
+    }
+    showMsg(QString("安全桩port[%1]\t组数量[%2]").arg(m_E_StakePort).arg(m_GroupCount));
+
+    m_E_StakeVer0 = new E_StakeVer0(m_E_StakePort);
+    m_E_StakeVer0->start();
+
+    for(int i=0; i<m_GroupCount; i++){
+        int Id1 = settings.value(QString("Group%1/Id01").arg(i), -1).toInt();
+        int Id2 = settings.value(QString("Group%1/Id02").arg(i), -1).toInt();
+        if(Id1 == -1 || Id2 == -1){
+            showMsg("************ EStake.ini id错误，请检查配置并重启 ************");
+        }
+
+        showMsg(QString("Group[%1]\tid1[%2]\tid2[%3]").arg(i).arg(Id1).arg(Id2));
+
+        emit m_E_StakeVer0->signalAddGroup(i, Id1, Id2);
+    }
+
+    //m_E_StakePort = settings.value(QString("BackCfg/E_StakePort"), "-1").toString();
 }
 
 void Widget::initGroups()
