@@ -3,7 +3,7 @@
 #include <QThread>
 #include "e_stakever0worker.h"
 
-#define CONTENT1 "禁止"
+#define CONTENT1 "新人"
 #define CONTENT2 "穿越"
 
 #define DISPLAY_FEFAULT "FF 40 FF 01 02 03 04 00 AA"
