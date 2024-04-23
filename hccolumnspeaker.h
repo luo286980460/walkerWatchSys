@@ -28,7 +28,8 @@ signals:
                           int times);
     void signalCmdStopPlay();                       // 停止播放
     void signalCmdSetVolume(int volume);            // 调节音量
-    void signalIllegalAct();                        // 相机违法行为
+    void signalIllegalAct();                        // 音柱违法行为
+    void signalllegalActOver();                     // 音柱违法行为结束
 
 private:
     QThread m_workerThread;                         // 作线程

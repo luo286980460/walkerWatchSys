@@ -10,15 +10,18 @@ class E_StakeVer0 : public QObject
 {
     Q_OBJECT
 public:
-    explicit E_StakeVer0(QString port, QObject *parent = nullptr);
+    explicit E_StakeVer0(int EstakeControlType, QString portOrIp, QObject *parent = nullptr);
     ~E_StakeVer0();
 
     void start();
     void stop();
 
 signals:
+    void showMsg(QString msg);
     void signalInitWorker();
-    void signalAddGroup(int groupId, int lightId1, int lightId2);
+    void signalAddEStake(int workGroup, int upId, int downId);
+    void signalIllegalAct(int GroupId);         // 安全桩违法行为
+    void signalllegalActOver(int GroupId);      // 安全桩违法行为结束
 
 private:
     QThread m_workerThread;                     // 作线程

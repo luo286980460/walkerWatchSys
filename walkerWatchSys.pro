@@ -11,6 +11,8 @@ CONFIG += c++17
 SOURCES += \
     e_stakever0.cpp \
     e_stakever0worker.cpp \
+    groupmanager.cpp \
+    groupmanagerworker.cpp \
     hcballheadcamera.cpp \
     hcballheadcameraworker.cpp \
     hccolumnspeaker.cpp \
@@ -18,13 +20,14 @@ SOURCES += \
     main.cpp \
     novacontroller.cpp \
     novacontrollerworker.cpp \
-    widget.cpp \
-    workgroup.cpp
+    widget.cpp
 
 HEADERS += \
     NovaHeader.h \
     e_stakever0.h \
     e_stakever0worker.h \
+    groupmanager.h \
+    groupmanagerworker.h \
     hcballheadcamera.h \
     hcballheadcameraworker.h \
     hccolumnspeaker.h \
@@ -32,8 +35,7 @@ HEADERS += \
     novacontroller.h \
     novacontrollerworker.h \
     speakerHeader.h \
-    widget.h \
-    workgroup.h
+    widget.h
 
 FORMS += \
     widget.ui

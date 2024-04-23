@@ -17,6 +17,7 @@ HCColumnSpeaker::HCColumnSpeaker(QString ip, QString HCSpeakerContent, int HCSpe
     connect(this, &HCColumnSpeaker::signalCmdStopPlay, m_work,&HCColumnSpeakerWorker::slotCmdStopPlay);
     connect(this, &HCColumnSpeaker::signalCmdSetVolume, m_work,&HCColumnSpeakerWorker::slotCmdSetVolume);
     connect(this, &HCColumnSpeaker::signalIllegalAct, m_work,&HCColumnSpeakerWorker::slotIllegalAct);
+    connect(this, &HCColumnSpeaker::signalllegalActOver, m_work,&HCColumnSpeakerWorker::slotIllegalActOver);
 }
 
 HCColumnSpeaker::~HCColumnSpeaker()

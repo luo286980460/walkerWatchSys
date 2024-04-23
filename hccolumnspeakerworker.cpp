@@ -237,6 +237,16 @@ void HCColumnSpeakerWorker::slotIllegalAct()
     }
 }
 
+void HCColumnSpeakerWorker::slotIllegalActOver()
+{
+    void stopPlay();
+}
+
+void HCColumnSpeakerWorker::stopPlay()
+{
+    // 待实现
+}
+
 void HCColumnSpeakerWorker::DaHuaTTS()
 {
     emit showMsg(QString("http://%1/php/exeRealPlayFile.php").arg(m_ip));

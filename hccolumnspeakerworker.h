@@ -7,6 +7,16 @@
 #include <QUrlQuery>
 #include <QTimer>
 
+typedef struct {
+    int SpakerType;         // 音柱类型（0海康1大华）
+    QString ip;             // 音柱ip
+    int id;                 // 大华音柱id（音柱为海康时，不需要此值）
+    QString SpeakerContent; // 音柱播放内容（TTS）或者文件名（MP3）
+    int SpeakerVolume;      // 音柱播放音量（1-10）
+    int SpeakerPlayMode;    // 音柱播放类型（TTS/MP3）
+    int HCSpeakerTimes;     // 音柱播放时间（单位秒）或者次数
+}speaker_s;
+
 class HCColumnSpeakerWorker : public QObject
 {
     Q_OBJECT
@@ -35,7 +45,9 @@ public slots:
     void slotCmdStopPlay();                     // 停止播放
     void slotCmdSetVolume(int volume);          // 调节音量
     QString QString2Hex(QString str);           // 文字转16进制
-    void slotIllegalAct();                      // 相机违法行为
+    void slotIllegalAct();                      // 音柱违法行为
+    void slotIllegalActOver();                  // 音柱违法行为结束
+    void stopPlay();
 
 
 private:

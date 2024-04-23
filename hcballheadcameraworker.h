@@ -4,62 +4,51 @@
 #include <QObject>
 #include "include/HCCamera/HCNetSDK.h"
 
+typedef struct {
+    int workGroup;        // 相机工作组
+    LONG lUserID;         // 注册设备 id
+    LONG lHandle;         // 布防句柄
+    QString ip;           // 相机ip
+    int port;             // 相机端口
+    QString user;         // 相机用户
+    QString pwd;          // 相机密码
+    QString backPath;     // 照片保存路径
+}cameraInfo_s;
+
 class HCBallheadCameraWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit HCBallheadCameraWorker(QString ip, int HCCameraIndex, QObject *parent = nullptr);
+    explicit HCBallheadCameraWorker(QObject *parent = nullptr);
     ~HCBallheadCameraWorker();
-
-    QString getIp();
 
 private:
     bool initSdk();
-    bool logInCamera(QString ip, int port, QString user, QString pwd);
-    bool startAlarm();
-    void initBackupPath();
-    void saveImage(QByteArray imageData);
 
 signals:
     void showMsg(QString msg);
-    void signalIllegalAct();
+    void signalIllegalAct(int GroupId);         // 违法组
     void signalGetImage(QByteArray imagedata, QString ip);
 
 public slots:
     void slotInit();
-    void slotUpDateBackUpPathDir();
+    void slotAddCamera(int workGroup, QString ip, int port, QString user, QString pwd);
+    void slotReflushBackupPath();        // 刷新违法图片保存文件夹
 
 private:
-    static void CALLBACK MessageCallback0(LONG lCommand,             // 海康回调函数
+    static void CALLBACK MessageCallback(LONG lCommand,             // 海康回调函数
                                          NET_DVR_ALARMER *pAlarmer,
                                          char *pAlarmInfo,
                                          DWORD dwBufLen,
                                          void* pUser);
-    static void CALLBACK MessageCallback1(LONG lCommand,             // 海康回调函数
-                                         NET_DVR_ALARMER *pAlarmer,
-                                         char *pAlarmInfo,
-                                         DWORD dwBufLen,
-                                         void* pUser);
-    static void CALLBACK MessageCallback2(LONG lCommand,             // 海康回调函数
-                                         NET_DVR_ALARMER *pAlarmer,
-                                         char *pAlarmInfo,
-                                         DWORD dwBufLen,
-                                         void* pUser);
-    static void CALLBACK MessageCallback3(LONG lCommand,             // 海康回调函数
-                                         NET_DVR_ALARMER *pAlarmer,
-                                         char *pAlarmInfo,
-                                         DWORD dwBufLen,
-                                         void* pUser);
-    int m_iIndex = 0;
-    void* ls_1 = nullptr;
-    LONG m_lUserID;         // 注册设备 id
-    LONG m_lHandle;         // 布防句柄
-    QString m_ip;           // 相机ip
-    int m_port;             // 相机端口
-    QString m_user;         // 相机用户
-    QString m_pwd;          // 相机密码
-    int m_HCCameraIndex;    // 相机回调编号
-    QString m_backUpPathDir;// 相机备份路径
+
+    QList<cameraInfo_s*> m_cameraList; // 相机列表
+    bool logInCamera(cameraInfo_s* camera);
+    bool startAlarm(cameraInfo_s* camera);
+    void initBackupPath(cameraInfo_s* camera);
+    void saveImage(cameraInfo_s* camera, QByteArray imageData);
+
+    static bool m_haveBack; // 是否已经注册回调
 
 };
 

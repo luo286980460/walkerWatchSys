@@ -10,7 +10,7 @@ class HCBallheadCamera : public QObject
 {
     Q_OBJECT
 public:
-    explicit HCBallheadCamera(QString ip, int HCCameraIndex, QObject *parent = nullptr);
+    explicit HCBallheadCamera(QObject *parent = nullptr);
     ~HCBallheadCamera();
 
     void start();
@@ -19,9 +19,10 @@ public:
 signals:
     void showMsg(QString msg);
     void signalInitWorker();
-    void signalIllegalAct();
+    void signalIllegalAct(int GroupId);
     void signalGetImage(QByteArray imagedata, QString ip);
-    void signalUpDateBackUpPathDir();
+    void signalAddCamera(int workGroup, QString ip, int port, QString user, QString pwd);
+    void signalReflushBackupPath();     // 刷新违法图片保存文件夹
 
 private:
     QThread m_workerThread;                          // 作线程

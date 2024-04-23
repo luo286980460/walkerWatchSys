@@ -1,7 +1,6 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include "workgroup.h"
-#include "e_stakever0.h"
+#include "groupmanager.h"
 
 #include <QMenu>
 #include <QTime>
@@ -15,7 +14,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle("行人过节危险预警提示系统_2024.04.23");
+    setWindowTitle("行人过节危险预警提示系统_2024.04.28");
     setFixedSize(size());
 
     init();
@@ -29,61 +28,15 @@ Widget::~Widget()
 void Widget::init()
 {
     initSystemTray();   // 初始化系统托盘
-    initE_StakeVer0();
-    initGroups();
     initTimerSec();
+    initGroupManager();
 }
 
-void Widget::initE_StakeVer0()
+void Widget::initGroupManager()
 {
-    QString iniPath = QCoreApplication::applicationDirPath() + ESTAKE_INI;
-    if(!QFileInfo::exists(iniPath)){
-        emit showMsg("****** cfg.ini 配置文件丢失 ******");
-        return;
-    }
-    QSettings settings(iniPath, QSettings::IniFormat);
-    settings.setIniCodec("UTF-8");
-
-    m_E_StakePort =settings.value(QString("EStake/Port"), -1).toString();
-    m_GroupCount = settings.value(QString("EStake/GroupCount"), -1).toInt();
-
-    if(m_E_StakePort == -1 || m_GroupCount == -1){
-        showMsg("************ EStake.ini 配置文件数据有误，请检查配置并重启 ************");
-    }
-    showMsg(QString("安全桩port[%1]\t组数量[%2]").arg(m_E_StakePort).arg(m_GroupCount));
-
-    m_E_StakeVer0 = new E_StakeVer0(m_E_StakePort);
-    m_E_StakeVer0->start();
-
-    for(int i=0; i<m_GroupCount; i++){
-        int Id1 = settings.value(QString("Group%1/Id01").arg(i), -1).toInt();
-        int Id2 = settings.value(QString("Group%1/Id02").arg(i), -1).toInt();
-        if(Id1 == -1 || Id2 == -1){
-            showMsg("************ EStake.ini id错误，请检查配置并重启 ************");
-        }
-
-        showMsg(QString("Group[%1]\tid1[%2]\tid2[%3]").arg(i).arg(Id1).arg(Id2));
-
-        emit m_E_StakeVer0->signalAddGroup(i, Id1, Id2);
-    }
-
-    //m_E_StakePort = settings.value(QString("BackCfg/E_StakePort"), "-1").toString();
-}
-
-void Widget::initGroups()
-{
-    m_group1 = new WorkGroup(1, this);
-    connect(m_group1, &WorkGroup::showMsg, this,&Widget::showMsg);
-    connect(m_group1, &WorkGroup::signalGetImage, this,&Widget::slotGetImage);
-    connect(m_group1, &WorkGroup::signalUpdateIps, this,&Widget::slotUpdateIps);
-    m_group1->init();
-
-
-    m_group2 = new WorkGroup(2, this);
-    connect(m_group2, &WorkGroup::showMsg, this,&Widget::showMsg);
-    connect(m_group2, &WorkGroup::signalGetImage, this,&Widget::slotGetImage);
-    connect(m_group2, &WorkGroup::signalUpdateIps, this,&Widget::slotUpdateIps);
-    m_group2->init();
+    m_groupManager = new groupManager(this);
+    connect(m_groupManager, &groupManager::showMsg, this,&Widget::showMsg);
+    m_groupManager->start();
 }
 
 void Widget::initTimerSec()
@@ -91,11 +44,8 @@ void Widget::initTimerSec()
     m_timerSec = new QTimer;
     connect(m_timerSec, &QTimer::timeout, this, [=](){
         //qDebug() << QTime::currentTime().toString("hh:mm:ss");
-        if(QTime::currentTime().toString("hh:mm:ss") == "00:00:00"){
-            //initBackupPath();
-            if(m_group1) emit m_group1->signalUpDateBackUpPathDir();
-            if(m_group2) emit m_group1->signalUpDateBackUpPathDir();
-
+        if(QTime::currentTime().toString("hh:mm:ss") == "10:41:00"){
+            emit m_groupManager->signalReflushBackupPath();
             clsOverTimeIllegalPics();
         }
     });
@@ -105,11 +55,7 @@ void Widget::initTimerSec()
 
 void Widget::clsOverTimeIllegalPics()
 {
-    if(m_group1){
-        m_group1->clsOverTimeIllegalPics();
-    }else if(m_group2){
-        m_group2->clsOverTimeIllegalPics();
-    }
+
 }
 
 void Widget::closeEvent(QCloseEvent *event)
@@ -239,7 +185,7 @@ void Widget::on_clearBtn_clicked()
 
 void Widget::on_testBtn_clicked()
 {
-    m_group1->test();
-    m_group2->test();
+//    m_group1->test();
+//    m_group2->test();
 }
 
