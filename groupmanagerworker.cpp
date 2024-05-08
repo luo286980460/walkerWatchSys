@@ -43,6 +43,13 @@ void groupManagerWorker::slotIllegalAct(int GroupId)
 
 }
 
+void groupManagerWorker::slotIllegalTest()
+{
+    for(int i=0; i<m_groupCount; i++){
+        slotIllegalAct(i);
+    }
+}
+
 void groupManagerWorker::initGroup()
 {
     QString iniPath = QCoreApplication::applicationDirPath() + CFG_INI;

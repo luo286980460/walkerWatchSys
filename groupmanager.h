@@ -20,6 +20,7 @@ signals:
     void showMsg(QString msg);
     void signalInitWorker();
     void signalReflushBackupPath();     // 刷新违法图片保存文件夹
+    void signalIllegalTest();
 
 private:
     QThread m_workerThread;                      // 作线程

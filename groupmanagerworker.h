@@ -46,6 +46,7 @@ signals:
 public slots:
     void slotInit();
     void slotIllegalAct(int GroupId);
+    void slotIllegalTest();
 
 private:
     void initGroup();                       // 初始化组配置

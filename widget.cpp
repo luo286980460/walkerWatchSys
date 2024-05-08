@@ -14,7 +14,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle("行人过节危险预警提示系统_2024.04.28");
+    setWindowTitle("行人过节危险预警提示系统_2024.05.08");
     setFixedSize(size());
 
     init();
@@ -185,7 +185,6 @@ void Widget::on_clearBtn_clicked()
 
 void Widget::on_testBtn_clicked()
 {
-//    m_group1->test();
-//    m_group2->test();
+    m_groupManager->signalIllegalTest();
 }
 

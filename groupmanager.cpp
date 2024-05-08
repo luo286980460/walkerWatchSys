@@ -10,6 +10,7 @@ groupManager::groupManager(QObject *parent)
     connect(m_work, &groupManagerWorker::showMsg, this,&groupManager::showMsg);
     connect(this, &groupManager::signalInitWorker, m_work,&groupManagerWorker::slotInit);
     connect(this, &groupManager::signalReflushBackupPath, m_work,&groupManagerWorker::signalReflushBackupPath);
+    connect(this, &groupManager::signalIllegalTest, m_work,&groupManagerWorker::slotIllegalTest);
 }
 
 groupManager::~groupManager()
