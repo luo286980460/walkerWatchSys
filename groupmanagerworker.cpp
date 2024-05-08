@@ -11,7 +11,8 @@
 #include "e_stakever0.h"
 #include "qtimer.h"
 #include "hccolumnspeaker.h"
-#include "novacontroller.h".h"
+#include "novacontroller.h"
+#include "YuanHongBox.h"
 
 #define CFG_INI "/cfg.ini"
 
@@ -25,6 +26,7 @@ void groupManagerWorker::slotInit()
 {
     initGroup();
     initCamera();
+    initYuanHongBox();
     initE_StakeVer0();
     initTimerSec();
 }
@@ -65,13 +67,31 @@ void groupManagerWorker::initGroup()
 
         // 获取相机 数量
         group->CameraCount = settings.value(QString("Group%1/CameraCount").arg(i), -1).toInt();
-
-        // 获取相机 ip
-        for(int j=0; j<group->CameraCount; j++){
-            group->CameraIpList << settings.value(QString("Group%1/CameraIp%2").arg(i).arg(j,2,10,QLatin1Char('0')), "-1").toString();
-            if(group->CameraIpList.last() == "-1"){
-                emit showMsg(QString("************ cfg.ini 配置文件 Group%1/CameraIp%2 有误************").arg(i).arg(j,2,10,QLatin1Char('0')));
+        if(group->CameraCount >= 0){
+            // 获取相机 ip
+            for(int j=0; j<group->CameraCount; j++){
+                group->CameraIpList << settings.value(QString("Group%1/CameraIp%2").arg(i).arg(j,2,10,QLatin1Char('0')), "-1").toString();
+                if(group->CameraIpList.last() == "-1"){
+                    emit showMsg(QString("************ cfg.ini 配置文件 Group%1/CameraIp%2 有误************").arg(i).arg(j,2,10,QLatin1Char('0')));
+                }
             }
+        }else{
+            emit showMsg("************ 相机数量错误 ************");
+        }
+
+
+        // 获取分析盒 数量
+        group->YuanHongBoxCount = settings.value(QString("Group%1/YuanHongBoxCount").arg(i), -1).toInt();
+        if(group->YuanHongBoxCount >= 0){
+            // 获取分析盒 ip
+            for(int j=0; j<group->YuanHongBoxCount; j++){
+                group->YuanHongBoxIpList << settings.value(QString("Group%1/YuanHongBoxIp%2").arg(i).arg(j,2,10,QLatin1Char('0')), "-1").toString();
+                if(group->YuanHongBoxIpList.last() == "-1"){
+                    emit showMsg(QString("************ cfg.ini 配置文件 Group%1/YuanHongBoxIp%2 有误************").arg(i).arg(j,2,10,QLatin1Char('0')));
+                }
+            }
+        }else{
+            emit showMsg("************ 分析盒数量错误 ************");
         }
 
 
@@ -135,7 +155,7 @@ void groupManagerWorker::initGroup()
             }
         }
 
-        if(group->CameraCount == -1 || group->SpakerType == -1 || group->SpakerIp == "-1"
+        if(group->SpakerType == -1 || group->SpakerIp == "-1"
             || group->SpeakerTimes == -1 || group->SpeakerContent == "-1" || group->SpeakerPlayMode == "-1"
             || group->NovaControllerIp == "-1" || group->EstakeUpLightId == -1|| group->EstakeDownLightId == -1
             || group->AlarmDuration == -1) {
@@ -147,12 +167,12 @@ void groupManagerWorker::initGroup()
 音柱播放时间[%5]\t音柱播放内容[%6]\t音柱播放音量[%7]\t音柱播放类型[%8]\n\
 诺瓦ip[%9]\t恢复默认时间[%10]\t大华音柱id[%11]\t\t安全桩版本[%12]\n\
 安全桩控制类型[%13]\t安全桩串口[%14]\t安全桩网口[%15]\t上拨码[%16]\n\
-下拨码[%17]\t\t告警时长[%18]\n")
+下拨码[%17]\t\t告警时长[%18]\t\t分析盒数量[%19]\n")
                          .arg(i).arg(group->CameraCount).arg(group->SpakerType).arg(group->SpakerIp)
                          .arg(group->SpeakerTimes).arg(group->SpeakerContent).arg(group->SpeakerVolume).arg(group->SpakerType)
                          .arg(group->NovaControllerIp).arg(group->Back2DefaultProgram).arg(group->SpeakerId).arg(m_EstakeVersion)
                          .arg(m_EstakeControlType).arg(m_portOrIp).arg(m_portOrIp).arg(group->EstakeUpLightId)
-                         .arg(group->EstakeDownLightId).arg(group->AlarmDuration));
+                         .arg(group->EstakeDownLightId).arg(group->AlarmDuration).arg(group->YuanHongBoxCount));
 
         /* 初始化音柱 */
         group->speaker = new HCColumnSpeaker(group->SpakerIp, group->SpeakerContent, group->SpeakerTimes,
@@ -179,6 +199,22 @@ void groupManagerWorker::initCamera()
     for(int i=0; i<m_groupCount; i++){
         for(int j=0; j<m_groupList.at(i)->CameraCount; j++){
             emit m_camera->signalAddCamera(i, m_groupList.at(i)->CameraIpList.at(j), 8000, "admin", "utis123456");
+        }
+    }
+}
+
+void groupManagerWorker::initYuanHongBox()
+{
+    m_yuanHongBox = new YuanHongBox();
+    connect(m_yuanHongBox, &YuanHongBox::showMsg, this, &groupManagerWorker::showMsg);
+    connect(m_yuanHongBox, &YuanHongBox::signalIllegalAct, this, &groupManagerWorker::slotIllegalAct);
+    m_yuanHongBox->start();
+
+    for(int i=0; i<m_groupCount; i++){
+        for(int j=0; j<m_groupList.at(i)->YuanHongBoxCount; j++){
+            //emit showMsg(QString("组【%1】boxCount【%2】").arg(i).arg(m_groupList.at(i)->YuanHongBoxIpList.at(j)));
+            qDebug() << QString("send组【%1】boxCount【%2】").arg(i).arg(m_groupList.at(i)->YuanHongBoxIpList.at(j));
+            emit m_yuanHongBox->signalAddBox(i, m_groupList.at(i)->YuanHongBoxIpList.at(j));
         }
     }
 }

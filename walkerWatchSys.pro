@@ -4,11 +4,19 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
+msvc {
+    QMAKE_CFLAGS += /utf-8
+    QMAKE_CXXFLAGS += /utf-8
+}
+
+
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    YuanHongBox.cpp \
+    YuanHongBoxWorker.cpp \
     e_stakever0.cpp \
     e_stakever0worker.cpp \
     groupmanager.cpp \
@@ -24,6 +32,8 @@ SOURCES += \
 
 HEADERS += \
     NovaHeader.h \
+    YuanHongBox.h \
+    YuanHongBoxWorker.h \
     e_stakever0.h \
     e_stakever0worker.h \
     groupmanager.h \
@@ -87,3 +97,8 @@ DEPENDPATH += $$PWD/lib/Nova
 
 RESOURCES += \
     res.qrc
+
+win32: LIBS += -L$$PWD/lib/libhv/ -lhv
+
+INCLUDEPATH += $$PWD/lib/libhv
+DEPENDPATH += $$PWD/lib/libhv
