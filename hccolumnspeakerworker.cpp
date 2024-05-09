@@ -226,10 +226,10 @@ void HCColumnSpeakerWorker::slotIllegalAct()
         }
     }else if(m_HCSpeakerPlayMode == "MP3"){
         if(m_SpeakerType == 0){
-            emit showMsg(QString("海康MP3[%1]").arg(m_HCSpeakerContent));
+            //emit showMsg(QString("海康MP3[%1]").arg(m_HCSpeakerContent));
             slotCmdPlayMp3NameType("1", 1, m_HCSpeakerTimes);
         }else if(m_SpeakerType == 1){
-            emit showMsg(QString("大华MP3[%1]").arg(m_HCSpeakerContent));
+            //emit showMsg(QString("大华MP3[%1]").arg(m_HCSpeakerContent));
             DaHuaMP3();
         }else{
             return;

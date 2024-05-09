@@ -237,9 +237,9 @@ void HCBallheadCameraWorker::saveImage(cameraInfo_s *camera, QByteArray imageDat
     QString filePathName = QString("%1/%2.jpg")
                                .arg(camera->backPath)
                                .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
-    emit showMsg(filePathName);
+    //emit showMsg(filePathName);
     QImage image;
     image.loadFromData(imageData);
     bool res = image.save(filePathName.toLatin1(), "JPG");
-    emit showMsg(QString("保存图片返回值[%1] %2").arg(res).arg(filePathName));
+    //emit showMsg(QString("保存图片返回值[%1] %2").arg(res).arg(filePathName));
 }

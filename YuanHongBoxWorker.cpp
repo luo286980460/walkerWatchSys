@@ -19,7 +19,9 @@ YuanHongBoxWorker::YuanHongBoxWorker(QObject *parent)
 
 int YuanHongBoxWorker::getGroupId(QString ip)
 {
+    //emit showMsg(QString("*************getGroupId：组[%1]ip[%2]").arg(ip).arg(ip));
     for(int i=0; i<m_boxList.size(); i++){
+        emit showMsg(QString("*************getGroupId：组[%1]ip[%2]").arg(m_boxList.at(i)->workGroup).arg((m_boxList.at(i)->ip)));
         if(m_boxList.at(i)->ip == ip){
             return m_boxList.at(i)->workGroup;
         }
@@ -45,8 +47,10 @@ void YuanHongBoxWorker::slotStart()
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->Body()).toUtf8());
         QString ip = QString::fromStdString(req->client_addr.ip);
         qDebug() << "req: " << jsonDoc;
-        qDebug() << "ip: " << ip;
+        qDebug() << "ip: ";
         int group = getGroupId(ip);
+        //emit showMsg("*************ip: " + ip + "违法， 组[" + group + "]");
+        emit showMsg(QString("*************ip: %1 违法组[%2]").arg(ip).arg(group));
 
         if(group != -1){
             emit signalIllegalAct(group);
@@ -181,9 +185,9 @@ void YuanHongBoxWorker::slotStart()
 
 void YuanHongBoxWorker::slotAddBox(int workGroup, QString ip)
 {
-    //emit showMsg(QString("添加分析盒：组[%1]ip[%2]").arg(workGroup).arg(ip));
     boxInfo_s* box = new boxInfo_s;
     m_boxList << box;
     box->ip = ip;
     box->workGroup = workGroup;
+    //emit showMsg(QString("*************添加分析盒：组[%1]ip[%2]").arg(box->workGroup).arg(box->ip));
 }

@@ -14,7 +14,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle("行人过节危险预警提示系统_2024.05.08");
+    setWindowTitle("行人过节危险预警提示系统_2024.05.09");
     setFixedSize(size());
 
     init();

@@ -3,8 +3,8 @@
 #include <QThread>
 #include "e_stakever0worker.h"
 
-#define CONTENT1 "行人"
-#define CONTENT2 "穿越"
+#define CONTENT1 "注意"
+#define CONTENT2 "行人"
 
 #define DISPLAY_FEFAULT "FF 40 FF 01 02 03 04 00 AA"
 #define DISPLAY_FONT    "FF 55 %1 %2 AA"
@@ -106,6 +106,7 @@ void E_StakeVer0Worker::sendPrograme()
         cmd = cmd.toUpper();
         //qDebug() << "****************cmd: " << cmd;
         m_serialPort->write(QByteArray::fromHex(cmd.toLatin1()));
+        //showMsg("****************cmd: " + cmd);
     }
 
 }
