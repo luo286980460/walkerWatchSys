@@ -99,6 +99,8 @@ void HCBallheadCameraWorker::MessageCallback(LONG lCommand, NET_DVR_ALARMER *pAl
         }
     }
 
+    emit g_this->showMsg(QString("违法ip【%1】违法代码【%2】").arg(camera->ip).arg(lCommand));
+
     if(!camera) return;
 
     switch (lCommand)

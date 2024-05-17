@@ -154,7 +154,7 @@ void groupManagerWorker::initGroup()
                 emit showMsg("************ 海康音柱音量限定<2~7> ************");
             }
         }else if(group->SpakerType == 1){
-            if(group->SpeakerVolume < 1 || group->SpeakerVolume > 10){
+            if(group->SpeakerVolume < 1 || group->SpeakerVolume > 15){
                 emit showMsg("************ 大华音柱音量限定<1~10> ************");
             }
             if(group->SpeakerId == -1){
@@ -220,7 +220,7 @@ void groupManagerWorker::initYuanHongBox()
     for(int i=0; i<m_groupCount; i++){
         for(int j=0; j<m_groupList.at(i)->YuanHongBoxCount; j++){
             //emit showMsg(QString("组【%1】boxCount【%2】").arg(i).arg(m_groupList.at(i)->YuanHongBoxIpList.at(j)));
-            qDebug() << QString("send组【%1】boxCount【%2】").arg(i).arg(m_groupList.at(i)->YuanHongBoxIpList.at(j));
+            //qDebug() << QString("send组【%1】boxCount【%2】").arg(i).arg(m_groupList.at(i)->YuanHongBoxIpList.at(j));
             emit m_yuanHongBox->signalAddBox(i, m_groupList.at(i)->YuanHongBoxIpList.at(j));
         }
     }

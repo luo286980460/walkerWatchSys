@@ -69,6 +69,7 @@ private:
     // 大华
     void DaHuaTTS();
     void DaHuaMP3();
+    void DaHuaVolume(int id, int volume);
     QNetworkReply* m_reply = nullptr;
     QNetworkRequest m_request;
     QUrlQuery m_postData;;

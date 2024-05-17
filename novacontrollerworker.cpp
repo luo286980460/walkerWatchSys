@@ -124,7 +124,7 @@ void NovaControllerWorker::slotInit()
 
 void NovaControllerWorker::slotIllegalAct()
 {
-    qDebug() << QString("大屏违法:%1").arg(m_ip);
+    //qDebug() << QString("大屏违法:%1").arg(m_ip);
     if(m_traffic){
         // 播放节目2        临时
         playProgram(2);

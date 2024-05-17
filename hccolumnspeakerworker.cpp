@@ -57,6 +57,19 @@ void HCColumnSpeakerWorker::init()
 
         emit showMsg("m_HCColumnSpeaker: 类打开失败");
     }
+
+    connect(m_reply, &QNetworkReply::readyRead, [&](){
+        if (m_reply->error() == QNetworkReply::NoError) {
+            QByteArray data = m_reply->readAll();
+            // 处理从服务器获取的数据
+            qDebug() << QJsonDocument::fromJson(data).object();
+        } else {
+            // 处理错误
+            qDebug() << "Error: " << m_reply->errorString();
+        }
+        m_reply->deleteLater();
+
+    });
 }
 
 void HCColumnSpeakerWorker::connectColumnSpeaker()
@@ -84,13 +97,13 @@ void HCColumnSpeakerWorker::initTime()
             m_timeFlag++;
             //qDebug() << "m_timeFlag: " << m_timeFlag;
 
+            //emit showMsg(QString("m_timeFlag: %1").arg(m_timeFlag));
             if(m_timeFlag == 3){
                 m_canCmd = true;
                 m_timer->stop();
             }
         }
     });
-
 }
 
 void HCColumnSpeakerWorker::setSpeakerVolume(int volume)
@@ -214,7 +227,7 @@ QString HCColumnSpeakerWorker::QString2Hex(QString str)
 
 void HCColumnSpeakerWorker::slotIllegalAct()
 {
-    qDebug() << QString("音柱违法:%1m_HCSpeakerPlayMode[%2]").arg(m_ip).arg(m_HCSpeakerPlayMode);
+    //qDebug() << QString("音柱违法:%1m_HCSpeakerPlayMode[%2]").arg(m_ip).arg(m_HCSpeakerPlayMode);
 
     if(m_HCSpeakerPlayMode == "TTS"){
         if(m_SpeakerType == 0){
@@ -285,6 +298,8 @@ void HCColumnSpeakerWorker::DaHuaTTS()
 
 void HCColumnSpeakerWorker::DaHuaMP3()
 {
+    DaHuaVolume(m_DHSpeakerId, m_HCSpeakerVolume);
+
     emit showMsg(QString("http://%1/php/exeRealPlayFile.php").arg(m_ip));
     m_request.setUrl(QUrl(QString("http://%1/php/exeRealPlayFile.php").arg(m_ip)));
     m_request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -295,22 +310,27 @@ void HCColumnSpeakerWorker::DaHuaMP3()
     m_postData.addQueryItem("jsondata[param2]", "0");           // 0:文件  1:终端  2:声卡 3:文本
     m_postData.addQueryItem("jsondata[param5]", m_HCSpeakerContent);     // 播放内容
     m_postData.addQueryItem("jsondata[param6]", QString::number(m_HCSpeakerTimes));           // 持续时间,当持续时间大于文件时间时,将循环播放【默认为】(单位:秒)
-    m_postData.addQueryItem("jsondata[param8]",                 // 文本速度【-10 到 10，默认为 0，正常语速】 文字音量（0 到1.0）示例：0,1.0,0.4 背景音乐音量（0 到 1.0）
-                            QString("0,%1,0.0").arg(m_HCSpeakerVolume/10.0, 0, 'f', 1));
+    m_postData.addQueryItem("jsondata[param8]", "0,1.0,0.0");   // 文本速度【-10 到 10，默认为 0，正常语速】 文字音量（0 到1.0）示例：0,1.0,0.4 背景音乐音量（0 到 1.0）
+
     m_postData.addQueryItem("jsondata[extdata]", "back");       // 信息原封不动返回
+    m_reply = m_manager.post(m_request, m_postData.toString(QUrl::FullyEncoded).toUtf8());
+    m_postData.clear();
+
+}
+
+void HCColumnSpeakerWorker::DaHuaVolume(int id, int volume)
+{
+    m_request.setUrl(QUrl(QString("http://%1/php/savetervolume.php").arg(m_ip)));
+    m_request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    emit showMsg(QString("修改音量：%1【%2】").arg(volume).arg(m_ip));
+
+    // 详情见接口文件 2.22
+    m_postData.addQueryItem("jsondata[terid]", QString::number(id));           //
+    m_postData.addQueryItem("jsondata[talkinv]", QString::number(volume));           //
+    m_postData.addQueryItem("jsondata[talkoutv]", QString::number(volume));           //
+    m_postData.addQueryItem("jsondata[bcinv]", QString::number(volume));           //
+    m_postData.addQueryItem("jsondata[bcoutv]", QString::number(volume));           //
 
     m_reply = m_manager.post(m_request, m_postData.toString(QUrl::FullyEncoded).toUtf8());
-    connect(m_reply, &QNetworkReply::readyRead, [&](){
-        if (m_reply->error() == QNetworkReply::NoError) {
-            QByteArray data = m_reply->readAll();
-            // 处理从服务器获取的数据
-            qDebug() << QJsonDocument::fromJson(data).object();
-        } else {
-            // 处理错误
-            qDebug() << "Error: " << m_reply->errorString();
-        }
-        m_reply->deleteLater();
-
-    });
-
+    m_postData.clear();
 }
