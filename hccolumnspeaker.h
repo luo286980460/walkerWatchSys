@@ -11,8 +11,8 @@ class HCColumnSpeaker : public QObject
     Q_OBJECT
 public:
     explicit HCColumnSpeaker(QString ip, QString HCSpeakerContent, int HCSpeakerTimes,
-                             int HCSpeakerVolume, QString HCSpeakerPlayMode,
-                             int DHSpeakerId, int SpeakerType, QObject *parent = nullptr);
+                             int HCSpeakerVolume, int SpeakerNightVolume, QString HCSpeakerPlayMode,
+                             int DHSpeakerId, int SpeakerType, bool isDayTime, QObject *parent = nullptr);
     ~HCColumnSpeaker();
 
     void start();
@@ -30,6 +30,7 @@ signals:
     void signalCmdSetVolume(int volume);            // 调节音量
     void signalIllegalAct();                        // 音柱违法行为
     void signalllegalActOver();                     // 音柱违法行为结束
+    void signalUpdateDayOrNight(bool isDaytime);    // 更新白天黑夜状态
 
 private:
     QThread m_workerThread;                         // 作线程

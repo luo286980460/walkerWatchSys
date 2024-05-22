@@ -2,11 +2,11 @@
 #include "hccolumnspeakerworker.h"
 
 HCColumnSpeaker::HCColumnSpeaker(QString ip, QString HCSpeakerContent, int HCSpeakerTimes,
-                                 int HCSpeakerVolume, QString HCSpeakerPlayMode,
-                                 int DHSpeakerId, int SpeakerType, QObject *parent)
+                                 int HCSpeakerVolume, int SpeakerNightVolume, QString HCSpeakerPlayMode,
+                                 int DHSpeakerId, int SpeakerType, bool isDayTime, QObject *parent)
     : QObject{parent}
 {
-    m_work = new HCColumnSpeakerWorker(ip, HCSpeakerContent, HCSpeakerTimes, HCSpeakerVolume, HCSpeakerPlayMode, DHSpeakerId, SpeakerType);
+    m_work = new HCColumnSpeakerWorker(ip, HCSpeakerContent, HCSpeakerTimes, HCSpeakerVolume, SpeakerNightVolume, HCSpeakerPlayMode, DHSpeakerId, SpeakerType, isDayTime);
     m_work->moveToThread(&m_workerThread);
     connect(&m_workerThread, &QThread::finished, m_work, &QObject::deleteLater);
 
@@ -18,6 +18,7 @@ HCColumnSpeaker::HCColumnSpeaker(QString ip, QString HCSpeakerContent, int HCSpe
     connect(this, &HCColumnSpeaker::signalCmdSetVolume, m_work,&HCColumnSpeakerWorker::slotCmdSetVolume);
     connect(this, &HCColumnSpeaker::signalIllegalAct, m_work,&HCColumnSpeakerWorker::slotIllegalAct);
     connect(this, &HCColumnSpeaker::signalllegalActOver, m_work,&HCColumnSpeakerWorker::slotIllegalActOver);
+    connect(this, &HCColumnSpeaker::signalUpdateDayOrNight, m_work,&HCColumnSpeakerWorker::slotUpdateDayOrNight);
 }
 
 HCColumnSpeaker::~HCColumnSpeaker()

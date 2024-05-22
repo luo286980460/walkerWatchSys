@@ -21,6 +21,8 @@ signals:
     void signalInitWorker();
     void signalReflushBackupPath();     // 刷新违法图片保存文件夹
     void signalIllegalTest();
+    void signalUpdateDayOrNight(bool isDaytime);    // 更新白天黑夜状态
+    void signalUpdateDayNightTime(QString dayTimeStart, QString dayTimeSopt);
 
 private:
     QThread m_workerThread;                      // 作线程

@@ -11,6 +11,8 @@ groupManager::groupManager(QObject *parent)
     connect(this, &groupManager::signalInitWorker, m_work,&groupManagerWorker::slotInit);
     connect(this, &groupManager::signalReflushBackupPath, m_work,&groupManagerWorker::signalReflushBackupPath);
     connect(this, &groupManager::signalIllegalTest, m_work,&groupManagerWorker::slotIllegalTest);
+    connect(this, &groupManager::signalUpdateDayOrNight, m_work,&groupManagerWorker::signalUpdateDayOrNight);
+    connect(m_work, &groupManagerWorker::signalUpdateDayNightTime, this,&groupManager::signalUpdateDayNightTime);
 }
 
 groupManager::~groupManager()

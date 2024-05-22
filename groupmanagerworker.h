@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QTime>
 
 class HCBallheadCamera;
 class E_StakeVer0;
@@ -17,7 +18,8 @@ typedef struct{
     QString SpakerIp;               // 音柱ip
     int SpeakerTimes;               // 音柱播放时间（单位秒）或者次数
     QString SpeakerContent;         // 音柱播放内容（TTS）或者文件名（MP3）
-    int SpeakerVolume;              // 音柱播放音量（1-10）
+    int SpeakerVolume;              // 音柱播放音量（大华1-15，海康2-7）
+    int SpeakerNightVolume;         // 音柱晚上播放音量（大华1-15，海康2-7）
     QString SpeakerPlayMode;        // 音柱播放类型（TTS/MP3）
     QString NovaControllerIp;       // 诺瓦控制卡ip
     int Back2DefaultProgram;        // 恢复默认状态的时间（单位秒）
@@ -30,7 +32,6 @@ typedef struct{
     NovaController* nova;           // 诺瓦屏
     int YuanHongBoxCount;           // 分析盒数量
     QStringList YuanHongBoxIpList;  // 分析盒ip
-
 }groupInfo_s;
 
 class groupManagerWorker : public QObject
@@ -39,9 +40,14 @@ class groupManagerWorker : public QObject
 public:
     explicit groupManagerWorker(QObject *parent = nullptr);
 
+private:
+    bool getDayAndNightTime(QString DayTime);
+
 signals:
     void showMsg(QString msg);
     void signalReflushBackupPath();     // 刷新违法图片保存文件夹
+    void signalUpdateDayOrNight(bool isDaytime);    // 更新白天黑夜状态
+    void signalUpdateDayNightTime(QString dayTimeStart, QString dayTimeSopt);
 
 public slots:
     void slotInit();
@@ -74,6 +80,8 @@ private:
     void initTimerSec();
 
     /* 音柱 */
+    QTime m_dayTimeStart;                   // 白天开始
+    QTime m_dayTimeStop;                    // 白天结束
 
 };
 

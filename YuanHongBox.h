@@ -13,13 +13,13 @@ public:
     explicit YuanHongBox(QObject *parent = nullptr);
     ~YuanHongBox();
 
-    void start();       //开始线程
-    void stop();        //结束线程
+    void start();
+    void stop();
 
 signals:
     void showMsg(QString msg);
     void signalStart();
-    void signalIllegalAct(int GroupId);         // 违法组
+    void signalIllegalAct(int GroupId);
     void signalAddBox(int workGroup, QString ip);
 
 private:

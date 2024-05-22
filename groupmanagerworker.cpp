@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QDir>
 #include <QApplication>
+#include <QTime>
 
 #include "groupmanagerworker.h"
 #include "hcballheadcamera.h"
@@ -20,6 +21,19 @@ groupManagerWorker::groupManagerWorker(QObject *parent)
     : QObject{parent}
 {
 
+}
+
+bool groupManagerWorker::getDayAndNightTime(QString DayTime)
+{
+    QStringList timeList = DayTime.split("-");
+    if(timeList.size() != 2) return false;
+
+    m_dayTimeStart = QTime::fromString(timeList.at(0),"hh:mm:ss");
+    m_dayTimeStop = QTime::fromString(timeList.at(1),"hh:mm:ss");
+    if(!m_dayTimeStart.isValid() || !m_dayTimeStop.isValid())
+        return false;
+
+    return true;
 }
 
 void groupManagerWorker::slotInit()
@@ -64,9 +78,32 @@ void groupManagerWorker::initGroup()
     // 获取设备组数量
     m_groupCount = settings.value(QString("Base/GroupCount"), -1).toInt();
     if(m_groupCount == -1) emit showMsg("************ cfg.ini 配置文件数据有误<Base/GroupCount == -1>，请检查配置并重启 ************");
+
     // 获取违法图片保存天数
     m_SaveDays = settings.value(QString("Base/SaveDays"), 7).toInt();
     if(m_SaveDays == -1) emit showMsg("************ cfg.ini 配置文件数据有误<Base/SaveDays == -1>，请检查配置并重启 ************");
+
+    // 获取白天时间
+    QString DayTime = settings.value(QString("Base/DayTime"), "-1").toString();
+    //emit showMsg("DayTime:" + DayTime);
+    if(DayTime == -1) emit showMsg("************ cfg.ini 配置文件数据有误<Base/DayTime == -1>，请检查配置并重启 ************");
+
+    bool isDaytime = true;
+    if(!getDayAndNightTime(DayTime))
+        emit showMsg("************ cfg.ini 配置文件数据有误<白天时间格式有误>，请检查配置并重启 ************");
+    else{
+        //qDebug() << m_dayTimeStart << "\n" << m_dayTimeStop;
+        emit signalUpdateDayNightTime(m_dayTimeStart.toString("hh:mm:ss"), m_dayTimeStop.toString("hh:mm:ss"));
+
+        QTime currentTime = QTime::currentTime();
+        if(currentTime >= m_dayTimeStart && currentTime <= m_dayTimeStop){
+            emit showMsg("********白天");
+            isDaytime = true;
+        }else{
+            isDaytime = false;
+            emit showMsg("********晚上");
+        }
+    }
 
     for(int i=0; i<m_groupCount; i++){
         groupInfo_s* group = new groupInfo_s;
@@ -131,10 +168,13 @@ void groupManagerWorker::initGroup()
         group->SpeakerContent = settings.value(QString("Group%1/SpeakerContent").arg(i), "-1").toString();
         // 获取音柱播放音量（1-10）
         group->SpeakerVolume = settings.value(QString("Group%1/SpeakerVolume").arg(i), -1).toInt();
+        // 获取音柱晚上播放音量（1-10）
+        group->SpeakerNightVolume = settings.value(QString("Group%1/SpeakerNightVolume").arg(i), -1).toInt();
         // 获取音柱播放类型（TTS/MP3）
         group->SpeakerPlayMode = settings.value(QString("Group%1/SpeakerPlayMode").arg(i), "-1").toString();
         // 获取诺瓦控制卡ip
         group->NovaControllerIp = settings.value(QString("Group%1/NovaControllerIp").arg(i), "-1").toString();
+
         // 获取恢复默认状态的时间（单位秒）
         group->Back2DefaultProgram = settings.value(QString("Group%1/Back2DefaultProgram").arg(i), -1).toInt();
         // 获取大华音柱id（音柱为海康时，不需要此值）
@@ -150,12 +190,14 @@ void groupManagerWorker::initGroup()
 
         // 根据音柱类型判断配置文件是否正确
         if(group->SpakerType == 0){
-            if(group->SpeakerVolume < 2 || group->SpeakerVolume > 7){
-                emit showMsg("************ 海康音柱音量限定<2~7> ************");
+            if(group->SpeakerVolume < 2 || group->SpeakerVolume > 7
+                || group->SpeakerNightVolume < 2 || group->SpeakerNightVolume > 7){
+                emit showMsg("************ 海康音柱音量或晚上音量限定<2~7> ************");
             }
         }else if(group->SpakerType == 1){
-            if(group->SpeakerVolume < 1 || group->SpeakerVolume > 15){
-                emit showMsg("************ 大华音柱音量限定<1~10> ************");
+            if(group->SpeakerVolume < 1 || group->SpeakerVolume > 15
+                || group->SpeakerNightVolume < 1 || group->SpeakerNightVolume > 15){
+                emit showMsg("************ 大华音柱音量或晚上音量限定<1~10> ************");
             }
             if(group->SpeakerId == -1){
                 emit showMsg("************ 大华音柱id错误 ************");
@@ -174,18 +216,19 @@ void groupManagerWorker::initGroup()
 音柱播放时间[%5]\t音柱播放内容[%6]\t音柱播放音量[%7]\t音柱播放类型[%8]\n\
 诺瓦ip[%9]\t恢复默认时间[%10]\t大华音柱id[%11]\t\t安全桩版本[%12]\n\
 安全桩控制类型[%13]\t安全桩串口[%14]\t安全桩网口[%15]\t上拨码[%16]\n\
-下拨码[%17]\t\t告警时长[%18]\t\t分析盒数量[%19]\n")
+下拨码[%17]\t\t告警时长[%18]\t\t分析盒数量[%19]\t\t音柱晚上音量[%20]\n")
                          .arg(i).arg(group->CameraCount).arg(group->SpakerType).arg(group->SpakerIp)
                          .arg(group->SpeakerTimes).arg(group->SpeakerContent).arg(group->SpeakerVolume).arg(group->SpakerType)
                          .arg(group->NovaControllerIp).arg(group->Back2DefaultProgram).arg(group->SpeakerId).arg(m_EstakeVersion)
                          .arg(m_EstakeControlType).arg(m_portOrIp).arg(m_portOrIp).arg(group->EstakeUpLightId)
-                         .arg(group->EstakeDownLightId).arg(group->AlarmDuration).arg(group->YuanHongBoxCount));
+                         .arg(group->EstakeDownLightId).arg(group->AlarmDuration).arg(group->YuanHongBoxCount).arg(group->SpeakerNightVolume));
 
         /* 初始化音柱 */
         group->speaker = new HCColumnSpeaker(group->SpakerIp, group->SpeakerContent, group->SpeakerTimes,
-                                             group->SpeakerVolume, group->SpeakerPlayMode, group->SpeakerId,
-                                             group->SpakerType);
+                                             group->SpeakerVolume, group->SpeakerNightVolume, group->SpeakerPlayMode,
+                                             group->SpeakerId, group->SpakerType, isDaytime);
         connect(group->speaker, &HCColumnSpeaker::showMsg, this, &groupManagerWorker::showMsg);
+        connect(this, &groupManagerWorker::signalUpdateDayOrNight, group->speaker, &HCColumnSpeaker::signalUpdateDayOrNight);
         group->speaker->start();
 
         /* 初始化诺瓦屏 */

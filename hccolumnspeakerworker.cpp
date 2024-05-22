@@ -2,20 +2,23 @@
 #include "speakerHeader.h"
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QDebug>
 
 HCColumnSpeakerWorker::HCColumnSpeakerWorker(QString ip, QString HCSpeakerContent, int HCSpeakerTimes,
-                                             int HCSpeakerVolume, QString HCSpeakerPlayMode,
-                                             int DHSpeakerId, int SpeakerType, QObject *parent)
+                                             int HCSpeakerVolume, int SpeakerNightVolume, QString HCSpeakerPlayMode,
+                                             int DHSpeakerId, int SpeakerType, bool isDayTime, QObject *parent)
     : QObject{parent}
     , m_ip(ip)
     , m_port(34508)
     , m_pwd("Aa123456")
     , m_HCSpeakerContent(HCSpeakerContent)
     , m_HCSpeakerTimes(HCSpeakerTimes)
-    , m_HCSpeakerVolume(HCSpeakerVolume)
+    , m_SpeakerDaytimeVolume(HCSpeakerVolume)
+    , m_SpeakerNightVolume(SpeakerNightVolume)
     , m_HCSpeakerPlayMode(HCSpeakerPlayMode)
     , m_DHSpeakerId(DHSpeakerId)
     , m_SpeakerType(SpeakerType)
+    , m_isDaytime(isDayTime)
 {
 
 }
@@ -124,6 +127,8 @@ void HCColumnSpeakerWorker::slotInit()
         init();
         initTime();
     }
+
+    slotUpdateDayOrNight(m_isDaytime);
 }
 
 void HCColumnSpeakerWorker::slotReadyRead()
@@ -262,6 +267,17 @@ void HCColumnSpeakerWorker::stopPlay()
     // 待实现
 }
 
+void HCColumnSpeakerWorker::slotUpdateDayOrNight(bool isDaytime)
+{
+    if(isDaytime){
+        m_HCSpeakerVolume = m_SpeakerDaytimeVolume;
+    }
+    else{
+        m_HCSpeakerVolume = m_SpeakerNightVolume;
+    }
+    emit showMsg(QString("当前音量变更为[%1]").arg(m_HCSpeakerVolume));
+}
+
 void HCColumnSpeakerWorker::DaHuaTTS()
 {
     emit showMsg(QString("http://%1/php/exeRealPlayFile.php").arg(m_ip));
@@ -322,7 +338,7 @@ void HCColumnSpeakerWorker::DaHuaVolume(int id, int volume)
 {
     m_request.setUrl(QUrl(QString("http://%1/php/savetervolume.php").arg(m_ip)));
     m_request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    emit showMsg(QString("修改音量：%1【%2】").arg(volume).arg(m_ip));
+    emit showMsg(QString("修改音量：%1[%2]").arg(volume).arg(m_ip));
 
     // 详情见接口文件 2.22
     m_postData.addQueryItem("jsondata[terid]", QString::number(id));           //

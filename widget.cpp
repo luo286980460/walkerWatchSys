@@ -14,7 +14,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle("行人过节危险预警提示系统_2024.05.15");
+    setWindowTitle("行人过节危险预警提示系统_2024.05.22");
     setFixedSize(size());
 
     init();
@@ -36,6 +36,10 @@ void Widget::initGroupManager()
 {
     m_groupManager = new groupManager(this);
     connect(m_groupManager, &groupManager::showMsg, this,&Widget::showMsg);
+    connect(m_groupManager, &groupManager::signalUpdateDayNightTime, this, [=](QString dayTimeStart,  QString dayTimeStop){
+        m_dayTimeStart = dayTimeStart;
+        m_dayTimeStop = dayTimeStop;
+    });
     m_groupManager->start();
 }
 
@@ -44,9 +48,16 @@ void Widget::initTimerSec()
     m_timerSec = new QTimer;
     connect(m_timerSec, &QTimer::timeout, this, [=](){
         //qDebug() << QTime::currentTime().toString("hh:mm:ss");
-        if(QTime::currentTime().toString("hh:mm:ss") == "10:41:00"){
+        if(QTime::currentTime().toString("hh:mm:ss") == "00:00:00"){
             emit m_groupManager->signalReflushBackupPath();
             clsOverTimeIllegalPics();
+        }
+
+        if(QTime::currentTime().toString("hh:mm:ss") == m_dayTimeStart){
+            emit m_groupManager->signalUpdateDayOrNight(true);
+        }
+        if(QTime::currentTime().toString("hh:mm:ss") == m_dayTimeStop){
+            emit m_groupManager->signalUpdateDayOrNight(false);
         }
     });
     m_timerSec->setInterval(1000);

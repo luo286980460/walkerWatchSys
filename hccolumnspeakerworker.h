@@ -22,8 +22,8 @@ class HCColumnSpeakerWorker : public QObject
     Q_OBJECT
 public:
     explicit HCColumnSpeakerWorker(QString ip, QString HCSpeakerContent, int HCSpeakerTimes,
-                                   int HCSpeakerVolume, QString HCSpeakerPlayMode,
-                                   int DHSpeakerId, int SpeakerType, QObject *parent = nullptr);
+                                   int HCSpeakerVolume, int SpeakerNightVolume, QString HCSpeakerPlayMode,
+                                   int DHSpeakerId, int SpeakerType, bool isDayTime, QObject *parent = nullptr);
 
 signals:
     void showMsg(QString msg);
@@ -48,6 +48,7 @@ public slots:
     void slotIllegalAct();                      // 音柱违法行为
     void slotIllegalActOver();                  // 音柱违法行为结束
     void stopPlay();
+    void slotUpdateDayOrNight(bool isDaytime);  // 更新白天黑夜状态
 
 
 private:
@@ -62,9 +63,12 @@ private:
     QString m_HCSpeakerContent;     // 音柱播放内容
     int m_HCSpeakerTimes;           // 音柱播放次数
     int m_HCSpeakerVolume;          // 音柱音量
+    int m_SpeakerDaytimeVolume;     // 白天音柱音量
+    int m_SpeakerNightVolume;       // 晚上音柱音量
     QString m_HCSpeakerPlayMode;    // 音柱播放模式（MP3/TTS）不区分大小写
     int m_DHSpeakerId;              // 大华音柱ID
     int m_SpeakerType;              // 音柱类型 0HC 1DH
+    bool m_isDaytime;
 
     // 大华
     void DaHuaTTS();

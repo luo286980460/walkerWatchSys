@@ -49,6 +49,8 @@ private:
     QString m_ip2;
     QString m_ip3;
     QTimer* m_timerSec;             // 秒钟定时器
+    QString m_dayTimeStart;                   // 白天开始
+    QString m_dayTimeStop;                    // 白天结束
 
 private:
     // 最小化到系统托盘
